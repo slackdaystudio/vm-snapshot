@@ -1,0 +1,4 @@
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# This job runs every day at 12:15am and backs up all VMs
+# 15 0 * * * root vm-snapshot -d "*" -o /backups/VMs

@@ -45,13 +45,15 @@ fi
 
 print_help () {
     printf "Performs an incremental backup (if possible) on the given VMs.\n\n"
-    printf "Usage:\n  -d [VM_NAME(S) or \"*\"]\n  -o [PATH]\n\n"
+    printf "Usage:\n  -d [VM_NAME(S) or \"*\"]\n  -o [PATH]\n  -p (prune)\n\n"
     printf "Example: vm-snapshot -d vm1,vm2,vm3 -o /tmp/backups\n"
 }
 
 BACKUP_DIR=""
 
-while getopts ':d:o:h' OPTION; do
+PRUNE_OLD_BACKUPS=false
+
+while getopts ':d:o:hp' OPTION; do
     case "${OPTION}" in    
         d)
 	    VM_LIST="${OPTARG}"
@@ -69,6 +71,9 @@ while getopts ':d:o:h' OPTION; do
             print_help
 
 	    exit 0
+	;;
+        p)
+	    PRUNE_OLD_BACKUPS=true
 	;;
     esac
 done
@@ -104,9 +109,12 @@ for name in ${VMs[@]}; do
    
     ${BACKUP_TOOL} -S --noprogress -d ${name} -l auto -o ${SNAPSHOT_PATH}
 
-    # Delete last month's backups if our latest backup succeeded and it is the
-    # middle of the current month.
-    if [ $? -eq 0 ] && [ ${DAY_OF_MONTH} -eq 15 ]; then
+    # Delete last month's backups if our latest backup succeeded, it is past
+    # the middle of the current month, and we have explicitly turned on pruning.
+    if [ "${PRUNE_OLD_BACKUPS}" = true ] && 
+       [ $? -eq 0 ] && 
+       [ ${DAY_OF_MONTH} -gt 14 ]; 
+   then
         LAST_MONTH=`date -d "$(date +%Y-%m-1) -1 month" +%Y-%m`
     
     	LAST_MONTHS_BACKUPS_DIR=${BACKUP_DIR}/${name}/${LAST_MONTH}
@@ -120,3 +128,4 @@ for name in ${VMs[@]}; do
 done
 
 exit 0
+
