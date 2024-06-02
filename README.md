@@ -17,7 +17,7 @@ The script has two paramaters;
     "*" (with double-quotes) and all VMs found on the system will be backed up.
  2. `-o`, the output directory.  Only the root of the backup directory needs to
     be included, the script will generate the rest.
- 3. `p`, prune last months backups if it's the 15th or later in the month.
+ 3. `-p`, prune last months backups if it's the 15th or later in the month.
 
 ### Sample usages
 Backup a single VM.
